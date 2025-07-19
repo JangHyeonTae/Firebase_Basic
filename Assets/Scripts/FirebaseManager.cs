@@ -46,6 +46,9 @@ public class FirebaseManager : MonoBehaviour
                     app = FirebaseApp.DefaultInstance;
                     auth = FirebaseAuth.DefaultInstance;
                     database = FirebaseDatabase.DefaultInstance;
+
+                    //오프라인모드, 온라인모드 구분
+                    database.GoOnline();
                 }
                 else
                 {

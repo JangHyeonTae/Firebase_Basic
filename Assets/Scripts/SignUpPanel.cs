@@ -2,7 +2,9 @@ using Firebase.Auth;
 using Firebase.Extensions;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,8 +44,6 @@ public class SignUpPanel : MonoBehaviour
             return;
         }
 
-        //CreateUserWithEmailAndPasswordAsync 신청
-        //ContinueWithOnMainThread 결과
         FirebaseManager.Auth.CreateUserWithEmailAndPasswordAsync(idInput.text, passInput.text)
             .ContinueWithOnMainThread(task =>
             {
@@ -75,43 +75,31 @@ public class SignUpPanel : MonoBehaviour
         FirebaseAuth.DefaultInstance.FetchProvidersForEmailAsync(idInput.text)
            .ContinueWithOnMainThread(task =>
            {
+
                if (task.IsCanceled || task.IsFaulted)
                {
-                   AuthError errorCode = AuthError.None;
-
-                   var firebaseEx = task.Exception.Flatten().InnerExceptions[0] as Firebase.FirebaseException;
-
-                   if (firebaseEx != null)
-                   {
-                       errorCode = (AuthError)firebaseEx.ErrorCode;
-                   }
-
-                   if (errorCode == AuthError.EmailAlreadyInUse)
-                   {
-                       popUpPanel.SetActive(true);
-                       popUpPanel.GetComponent<PopUpPanel>().Init("This email is already in use");
-                       Debug.Log("1");
-                       canUse = false;
-                       return;
-                   }
-
                    popUpPanel.SetActive(true);
                    popUpPanel.GetComponent<PopUpPanel>().Init("Incorrect email address");
-                   Debug.Log("2");
                    canUse = false;
                    return;
                }
 
-               if (task.IsCompleted)
+               var provider = task.Result;
+               if (provider != null && provider.Count() > 0)
+               {
+                   popUpPanel.SetActive(true);
+                   popUpPanel.GetComponent<PopUpPanel>().Init("This email is already in use");
+                   canUse = false;
+                   return;
+               }
+               else
                {
                    popUpPanel.SetActive(true);
                    popUpPanel.GetComponent<PopUpPanel>().Init("You can use this Email");
-                   Debug.Log("3");
                    signUpButton.interactable = true;
                    canUse = true;
                    return;
                }
-
            });
     }
 
