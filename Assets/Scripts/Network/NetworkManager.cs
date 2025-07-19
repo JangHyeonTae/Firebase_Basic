@@ -67,6 +67,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     private void CreateRoom()
     {
+        if (string.IsNullOrEmpty(roomnameInput.text))
+        {
+            Debug.LogError("방 이름 입력 없음");
+            return;
+        }
+
         RoomOptions options = new RoomOptions();
         int maxPlayer = 0;
         bool succes = int.TryParse(roomMaxPlayerInput.text, out maxPlayer);
@@ -80,6 +86,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             maxPlayer = 0;
             Debug.Log("게임 제한 인원 초과");
         }
+
+        roomnameInput.text = null;
+    }
+
+    public override void OnCreatedRoom()
+    {
+        base.OnCreatedRoom();
     }
 
     public override void OnJoinedRoom()
